@@ -1,0 +1,89 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Montserrat", sans-serif !important;
+}
+img {
+  max-width: 100%;
+  height: auto;
+}
+.App {
+  min-height: 100vh;
+  width: 85vw;
+  max-width: 1900px;
+  margin: 0rem auto;
+}
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+body {
+  background-color: #f6f6f6;
+}
+
+/* Home CSS*/
+.nav-logo {
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 150px;
+}
+.home-banner {
+  position: relative;
+  display: flex;
+  padding-top: 3rem;
+}
+.home-bannerImage {
+  position: absolute;
+  top: -250px;
+  right: -170px;
+  z-index: -2;
+  max-width: 1050px;
+}
+.home-text{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+.primary-heading {
+  font-size: clamp(2rem, 5vw, 4rem);
+  color: #E94A47;
+  max-width: 600px;
+}
+.primary-text {
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  max-width: 500px;
+  color: #28306D;
+  margin: 1.5rem 0rem;
+  font-weight: 600;
+}
+.secondary-button {
+  padding: 1rem 2.5rem;
+  background-color: #28306D;
+  outline: none;
+  border: none;
+  border-radius: 1.25rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: white;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.secondary-button svg {
+  margin-left: 0.75rem;
+  font-size: 1.5rem;
+}
+.secondary-button:hover {
+  background-color: #E94A47;
+}
+.home-image {
+  max-width: 800px;
+}
