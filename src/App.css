@@ -10,7 +10,6 @@ img {
 }
 .App {
   min-height: 100vh;
-  width: 85vw;
   max-width: 1900px;
   margin: 0rem auto;
 }
@@ -23,6 +22,10 @@ body {
 }
 
 /* Home CSS*/
+.home-container{
+  width: 85vw;
+  margin: 0 auto;
+}
 .nav-logo {
   font-size: 1.5rem;
   cursor: pointer;
@@ -86,4 +89,85 @@ body {
 }
 .home-image {
   max-width: 800px;
+}
+
+/* Login CSS*/
+.login-box {
+  background: #fff;
+  padding: 30px 120px;
+  width: 550px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  border-radius: 10px;
+}
+.login-box h1 {
+  color:#E94A47;
+}
+
+/* Dashboard */
+.header{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 80px;
+  background-color: #E0ECFF;
+  margin: 0 auto;
+}
+.header h2{
+  margin: 0 auto 24px;
+  font-size: 40px;
+  font-weight: 700;
+  color: #23286B;
+}
+.chatrooms{
+  margin: 0 auto;
+  width: 95vw;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px 152px 0px 0px;
+  gap: 4px;
+}
+.chatrooms h3{
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  color: #23286B;
+}
+.chatroom-container {
+  display: flex;
+  flex-wrap: nowrap;
+  height: 200px;
+  overflow-x: auto;
+  padding: 10px;
+  gap: 10px;
+}
+
+.chatroom-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.chatroom-container::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.chatroom-container::-webkit-scrollbar-track {
+  background-color: #f6f6f6;
+}
+
+/* Card */
+
+.card-wrapper{
+  width: 270px; 
+  height: 200px; 
+  box-shadow: 0px 3px 50px #A5A5A5;
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.25rem;
 }

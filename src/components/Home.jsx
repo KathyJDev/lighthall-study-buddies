@@ -1,10 +1,15 @@
-import React from 'react'
-import BannerBackground from '../assets/bannerbackground.png'
-import AboutImage from '../assets/about-page-image.png'
-import Logo from '../assets/Logo.png'
+import React from 'react';
+import BannerBackground from '../assets/bannerbackground.png';
+import AboutImage from '../assets/about-page-image.png';
+import Logo from '../assets/Logo.png';
 import { FiArrowRight } from 'react-icons/fi';
 
 const Home = () => {
+
+    function goToLogin() {
+        window.location.href = '/login'
+    }
+
   return (
     <div className='home-container'>
         <div className='nav-logo'>
@@ -23,7 +28,7 @@ const Home = () => {
                     and get instant help and support
                     when you need it the most.
                 </p>
-                <button className='secondary-button'>
+                <button className='secondary-button' onClick={goToLogin}>
                     Join Now <FiArrowRight />
                 </button>
             </div>
