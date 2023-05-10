@@ -5,22 +5,19 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 
-const CreateChatroom = ({ modal, toggle, save }) => {
-  const [chatroomName, setChatroomName] = useState('');
-  const [chatroomTags, setChatroomTags] = useState('');
+const JoinChatroom = ({ modal, toggle, save }) => {
+  const [chatroomID, setChatroomID] = useState('');
 
   useEffect(() => {
     if (modal) {
-      setChatroomName('');
-      setChatroomTags('');
+      setChatroomID('');
     }
   }, [modal]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const title = chatroomName;
-    const tags = chatroomTags.split(",").map((tag) => tag.trim());
-    save(title, tags);
+    const code = chatroomID;
+    save(code);
     toggle();
   };
 
@@ -48,30 +45,21 @@ const CreateChatroom = ({ modal, toggle, save }) => {
       >
         <Box sx={style}>
           <Typography variant="h6" component="h2" gutterBottom>
-            Create a new chatroom
+            Join a new chatroom
           </Typography>
           <form onSubmit={handleSubmit}>
             <TextField
-              id="chatroom-name"
-              label="Chatroom name"
+              id="join-code"
+              label="Join Code"
               fullWidth
               required
-              value={chatroomName}
-              onChange={(event) => setChatroomName(event.target.value)}
-              margin="normal"
-              variant="outlined"
-            />
-            <TextField
-              id="chatroom-tags"
-              label="Chatroom tags (comma-separated)"
-              fullWidth
-              value={chatroomTags}
-              onChange={(event) => setChatroomTags(event.target.value)}
+              value={chatroomID}
+              onChange={(event) => setChatroomID(event.target.value)}
               margin="normal"
               variant="outlined"
             />
             <Button type="submit" variant="contained" sx={{ mt: 2, backgroundColor:'#23286B' }}>
-              Create
+              Join
             </Button>
           </form>
         </Box>
@@ -80,4 +68,4 @@ const CreateChatroom = ({ modal, toggle, save }) => {
   );
 };
 
-export default CreateChatroom
+export default JoinChatroom
