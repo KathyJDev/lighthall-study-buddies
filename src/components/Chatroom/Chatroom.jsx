@@ -4,6 +4,7 @@ import Input from './Input'
 import { useParams } from 'react-router-dom';
 import { db } from '../../../firebase-config.js';
 import { doc, getDoc, collection, query, where, onSnapshot, addDoc, serverTimestamp, orderBy } from 'firebase/firestore';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const ChatroomContainer = styled('div')({
   borderRadius: '20px',
@@ -46,10 +47,11 @@ const MessageText = styled('p')({
   padding: '8px',
   borderRadius: '8px',
   maxWidth: '60%',
-  '&.sent': {
+  '.sent &': {
     background: '#418BF6',
+    color: '#FFFFFF',
   },
-  '&.recieved': {
+  '.received &': {
     background: '#E0ECFF',
   },
 });
@@ -66,11 +68,23 @@ const InputWrapper = styled('div')({
   alignItems: 'center',
 });
 
+const LeaveIcon = styled(LogoutIcon)({
+  background: '#E34543',
+  color: '#FFFFFF',
+  height: '2rem',
+  width: '2rem',
+  borderRadius: '5px',
+  marginLeft: 'auto',
+  padding: '4px',
+});
+
 function Chatroom() {
+  const { id } = useParams();
   const { chatroomId } = useParams();
   const [chatroom, setChatroom] = useState({});
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState('');
+  const [user, setUser] = useState(null);
 
   const chatroomRef = doc(db, "chatrooms", chatroomId);
   const messagesRef = collection(chatroomRef, "messages");
@@ -88,45 +102,65 @@ function Chatroom() {
   }, [])
 
   useEffect(() => {
+    const userRef = doc(db, "users", id);
+    const unsubscribe = onSnapshot(userRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        setUser(docSnapshot.data());
+      } else {
+        console.log("No such document!");
+      }
+    });
+    return unsubscribe;
+  }, [id]);
+
+  useEffect(() => {
     const messagesQuery = query(messagesRef, orderBy('timestamp', 'asc'));
     const unsubscribe = onSnapshot(messagesQuery, (querySnapshot) => {
       const messages = [];
       querySnapshot.forEach((doc) => {
         messages.push(doc.data());
       });
-      setMessages(messages);
+      if (unsubscribe) {
+        setMessages(messages);
+      }
     });
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const handleSendMessage = async () => {
     if (messageInput.trim() !== '') {
-      const user = 'John Doe'; // Replace this with your authentication logic to get the current user
       await addDoc(messagesRef, {
         text: messageInput,
-        user,
+        user: user.username,
         timestamp: serverTimestamp(),
       });
       setMessageInput('');
     }
   };
 
+  function navigateToDashboard() {
+    window.location.href = `/dashboard/${id}`;
+}
+
   return (
     <ChatroomContainer>
       <ChatroomHeader>
           <div className='header'>
             <h2>{chatroom.title}</h2>
+            <LeaveIcon cursor='pointer' onClick={navigateToDashboard}/>
           </div>
           <MessagesContainer>
             {messages.map((message, index) => (
-              <MessageWrapper key={index} className={message.user === 'KathyJ' ? 'sent' : 'received'}>
+              <MessageWrapper key={index} className={message.user === user.username ? 'sent' : 'received'}>
                 <MessageText>{message.text}</MessageText>
                 <MessageUser>{message.user}</MessageUser>
               </MessageWrapper>
             ))}
         </MessagesContainer>
         <InputWrapper>
-          <Input />
+        <Input value={messageInput} onChange={(e) => setMessageInput(e.target.value)} onSend={handleSendMessage} />
         </InputWrapper>
       </ChatroomHeader>
     </ChatroomContainer>
