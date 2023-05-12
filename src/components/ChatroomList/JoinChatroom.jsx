@@ -4,6 +4,15 @@ import Box from '@mui/joy/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#28306D',
+    },
+  },
+});
 
 const JoinChatroom = ({ modal, toggle, save }) => {
   const [chatroomID, setChatroomID] = useState('');
@@ -27,7 +36,7 @@ const JoinChatroom = ({ modal, toggle, save }) => {
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: 400,
-    bgcolor: 'background.paper',
+    bgcolor: '#FFFFFF',
     border: '6px solid',
     borderColor: '#B8D1FD',
     borderRadius: '1rem',
@@ -37,6 +46,7 @@ const JoinChatroom = ({ modal, toggle, save }) => {
 
   return (
     <div>
+      <ThemeProvider theme={theme}>
       <Modal
         open={modal}
         onClose={toggle}
@@ -57,6 +67,7 @@ const JoinChatroom = ({ modal, toggle, save }) => {
               onChange={(event) => setChatroomID(event.target.value)}
               margin="normal"
               variant="outlined"
+              autoComplete='off'
             />
             <Button type="submit" variant="contained" sx={{ mt: 2, backgroundColor:'#23286B' }}>
               Join
@@ -64,6 +75,7 @@ const JoinChatroom = ({ modal, toggle, save }) => {
           </form>
         </Box>
       </Modal>
+      </ThemeProvider>
     </div>
   );
 };

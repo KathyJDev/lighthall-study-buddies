@@ -2,9 +2,18 @@ import { styled } from '@mui/system';
 import React, { useState, useEffect } from 'react';
 import Input from './Input'
 import { useParams } from 'react-router-dom';
+import { getAuth } from "firebase/auth";
 import { db } from '../../../firebase-config.js';
 import { doc, getDoc, collection, query, where, onSnapshot, addDoc, serverTimestamp, orderBy } from 'firebase/firestore';
 import LogoutIcon from '@mui/icons-material/Logout';
+import ShareIcon from '@mui/icons-material/Share';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 
 const ChatroomContainer = styled('div')({
   borderRadius: '20px',
@@ -78,13 +87,24 @@ const LeaveIcon = styled(LogoutIcon)({
   padding: '4px',
 });
 
+const ShareIconStyled = styled(ShareIcon)({
+  background: '#418BF6',
+  color: '#FFFFFF',
+  height: '2rem',
+  width: '2rem',
+  borderRadius: '5px',
+  marginLeft: '8px',
+  padding: '4px',
+});
+
 function Chatroom() {
-  const { id } = useParams();
   const { chatroomId } = useParams();
   const [chatroom, setChatroom] = useState({});
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState('');
-  const [user, setUser] = useState(null);
+  const [open, setOpen] = useState(false);
+  const auth = getAuth();
+  const user = auth.currentUser;
 
   const chatroomRef = doc(db, "chatrooms", chatroomId);
   const messagesRef = collection(chatroomRef, "messages");
@@ -100,18 +120,6 @@ function Chatroom() {
     }
     getChatroom();
   }, [])
-
-  useEffect(() => {
-    const userRef = doc(db, "users", id);
-    const unsubscribe = onSnapshot(userRef, (docSnapshot) => {
-      if (docSnapshot.exists()) {
-        setUser(docSnapshot.data());
-      } else {
-        console.log("No such document!");
-      }
-    });
-    return unsubscribe;
-  }, [id]);
 
   useEffect(() => {
     const messagesQuery = query(messagesRef, orderBy('timestamp', 'asc'));
@@ -141,15 +149,25 @@ function Chatroom() {
   };
 
   function navigateToDashboard() {
-    window.location.href = `/dashboard/${id}`;
-}
+    window.location.href = `/dashboard`;
+  }
+
+  function handleOpen(){
+    setOpen(true);
+  }
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   return (
+    <>
     <ChatroomContainer>
       <ChatroomHeader>
           <div className='header'>
             <h2>{chatroom.title}</h2>
             <LeaveIcon cursor='pointer' onClick={navigateToDashboard}/>
+            <ShareIconStyled cursor='pointer' onClick={handleOpen} />
           </div>
           <MessagesContainer>
             {messages.map((message, index) => (
@@ -164,6 +182,24 @@ function Chatroom() {
         </InputWrapper>
       </ChatroomHeader>
     </ChatroomContainer>
+    <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        sx={{ minWidth: 400 }}
+        >
+        <DialogTitle id="alert-dialog-title">{"Share Chatroom"}</DialogTitle>
+        <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+            Share this code with your friends to invite them to join this chatroom!
+            </DialogContentText>
+            <Typography level="h6" sx={{ fontSize: '2rem', fontWeight:"600", color:"#23286B"}} mb={0.5}>
+                {chatroom.joinCode}
+            </Typography>
+        </DialogContent>
+        </Dialog>
+    </>
     )
 }
 

@@ -4,6 +4,15 @@ import Box from '@mui/joy/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#28306D',
+    },
+  },
+});
 
 const CreateChatroom = ({ modal, toggle, save }) => {
   const [chatroomName, setChatroomName] = useState('');
@@ -19,7 +28,7 @@ const CreateChatroom = ({ modal, toggle, save }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     const title = chatroomName;
-    const tags = chatroomTags.split(",").map((tag) => tag.trim());
+    const tags = chatroomTags.split(",").map((tag) => tag.trim().toLowerCase()).slice(0, 5);;
     save(title, tags);
     toggle();
   };
@@ -30,7 +39,7 @@ const CreateChatroom = ({ modal, toggle, save }) => {
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: 400,
-    bgcolor: 'background.paper',
+    bgcolor: '#FFFFFF',
     border: '6px solid',
     borderColor: '#B8D1FD',
     borderRadius: '1rem',
@@ -40,6 +49,7 @@ const CreateChatroom = ({ modal, toggle, save }) => {
 
   return (
     <div>
+      <ThemeProvider theme={theme}>
       <Modal
         open={modal}
         onClose={toggle}
@@ -59,16 +69,21 @@ const CreateChatroom = ({ modal, toggle, save }) => {
               value={chatroomName}
               onChange={(event) => setChatroomName(event.target.value)}
               margin="normal"
-              variant="outlined"
+              autoComplete='off'
+              color='primary'
+              maxLength={20}
             />
             <TextField
               id="chatroom-tags"
               label="Chatroom tags (comma-separated)"
+              required
               fullWidth
               value={chatroomTags}
               onChange={(event) => setChatroomTags(event.target.value)}
               margin="normal"
               variant="outlined"
+              autoComplete='off'
+              color='primary'
             />
             <Button type="submit" variant="contained" sx={{ mt: 2, backgroundColor:'#23286B' }}>
               Create
@@ -76,6 +91,7 @@ const CreateChatroom = ({ modal, toggle, save }) => {
           </form>
         </Box>
       </Modal>
+      </ThemeProvider>
     </div>
   );
 };

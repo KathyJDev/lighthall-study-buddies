@@ -7,7 +7,7 @@ import { styled } from '@mui/material/styles';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import { useParams } from 'react-router-dom';
+import { getAuth } from "firebase/auth";
 
 const SearchTextField = styled(TextField)({
     background: '#ffffff',
@@ -36,7 +36,7 @@ const ChipContainer = styled(Stack)({
 })
 
 const DashButton = styled(Button)({
-    background: '#E34543',
+    background: '#418BF6',
     color: '#FFFFFF',
     textTransform: 'none',
     height: '3rem',
@@ -45,16 +45,17 @@ const DashButton = styled(Button)({
     fontWeight: 'bold',
     marginLeft: 'auto',
     '&:hover': {
-      background: '#418BF6',
+      background: '#28306D',
     },
   });
 
 function Community() {
-    const { id } = useParams();
     const [chatrooms, setChatrooms] = useState([]);
     const [filteredChatrooms, setFilteredChatrooms] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [tags, setTags] = useState([]);
+    const auth = getAuth();
+    const user = auth.currentUser;
 
     useEffect(() => {
         // Fetch all chatrooms from Firestore
@@ -85,7 +86,7 @@ function Community() {
     };
 
     function navigateToDashboard() {
-        window.location.href = `/dashboard/${id}`;
+        window.location.href = `/dashboard`;
     }
 
   return (
@@ -93,7 +94,7 @@ function Community() {
     <div className='search-header'>
         <DashButton variant="contained" onClick={navigateToDashboard}>Dashboard</DashButton>
         <h2>Search Chatrooms</h2>
-        <SearchTextField type="text" size="small" value={searchQuery} onChange={event => setSearchQuery(event.target.value)} onKeyDown={handleKeyDown} placeholder="Search by tags" />
+        <SearchTextField type="text" size="small" value={searchQuery} onChange={event => setSearchQuery(event.target.value)} onKeyDown={handleKeyDown} placeholder="Search by tags" autoComplete='off' />
         <ChipContainer direction="row" gap='1'>
             {tags.map(tag => (
                 <Chip color='primary' variant='solid' key={tag} label={tag} onDelete={() => handleDelete(tag)} />
@@ -103,11 +104,11 @@ function Community() {
     <div className='community-chatrooms-container' >
       {filteredChatrooms.length > 0 ? (
         filteredChatrooms.map(chatroom => (
-          <ChatroomCard key={chatroom.id} chatroom={chatroom} chatroomID={chatroom.id} />
+          <ChatroomCard key={chatroom.id} chatroom={chatroom} chatroomId={chatroom.id} />
         ))
       ) : (
         chatrooms.map(chatroom => (
-          <ChatroomCard key={chatroom.id} chatroom={chatroom} chatroomID={chatroom.id} />
+          <ChatroomCard key={chatroom.id} chatroom={chatroom} chatroomId={chatroom.id} />
         ))
       )}
       </div>
