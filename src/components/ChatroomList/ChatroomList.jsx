@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from '../../../node_modules/uuid';
 import CreateChatroom from './CreateChatroom'
 import JoinChatroom from './JoinChatroom'
 import ChatroomCard from '../ChatroomCard/ChatroomCard'
