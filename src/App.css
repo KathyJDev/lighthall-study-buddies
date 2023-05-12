@@ -133,6 +133,7 @@ body {
   align-items: flex-start;
   padding: 0px 152px 0px 0px;
   gap: 4px;
+  flex-wrap: wrap;
 }
 .chatrooms h3{
   margin-top: 1rem;
@@ -147,24 +148,9 @@ body {
 }
 .chatrooms-container {
   display: flex;
-  flex-wrap: nowrap;
-  height: 200px;
-  overflow-x: auto;
+  flex-wrap: wrap;
   padding: 10px;
   gap: 10px;
-}
-
-.chatrooms-container::-webkit-scrollbar {
-  height: 8px;
-}
-
-.chatrooms-container::-webkit-scrollbar-thumb {
-  background-color: #ccc;
-  border-radius: 4px;
-}
-
-.chatrooms-container::-webkit-scrollbar-track {
-  background-color: #f6f6f6;
 }
 
 /* Chatroom */
@@ -227,9 +213,8 @@ body {
 }
 .community-chatrooms-container {
   display: flex;
-  flex-wrap: nowrap;
-  height: 200px;
-  overflow-x: auto;
+  flex-wrap: wrap;
+  height: 100%;
   padding: 10px;
   gap: 10px;
 }

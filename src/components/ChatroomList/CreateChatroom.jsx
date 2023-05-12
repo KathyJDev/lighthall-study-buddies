@@ -14,25 +14,41 @@ const theme = createTheme({
   },
 });
 
-const CreateChatroom = ({ modal, toggle, save }) => {
+const CreateChatroom = ({ modal, toggle, save, editData }) => {
   const [chatroomName, setChatroomName] = useState('');
   const [chatroomTags, setChatroomTags] = useState('');
 
   useEffect(() => {
     if (modal) {
-      setChatroomName('');
-      setChatroomTags('');
+      if (editData) {
+        setChatroomName(editData.title);
+        setChatroomTags(editData.tags.join(', '));
+      } else {
+        setChatroomName('');
+        setChatroomTags('');
+      }
     }
-  }, [modal]);
+  }, [modal, editData]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const title = chatroomName;
-    const tags = chatroomTags.split(",").map((tag) => tag.trim().toLowerCase()).slice(0, 5);;
-    save(title, tags);
+    const title = chatroomName.trim();
+    const tags = chatroomTags.split(",").map((tag) => tag.trim().toLowerCase());
+  
+    // Validation checks
+    if (title.length > 20) {
+      alert("Chatroom title must be 20 characters or less");
+      return;
+    }
+  
+    if (tags.length > 5) {
+      alert("You can only input up to 5 chatroom tags");
+      return;
+    }
+  
+    save(event, title, tags);
     toggle();
   };
-
   const style = {
     position: 'absolute',
     top: '50%',
@@ -57,9 +73,12 @@ const CreateChatroom = ({ modal, toggle, save }) => {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography variant="h6" component="h2" gutterBottom>
+          {!editData && <Typography variant="h6" component="h2" gutterBottom>
             Create a new chatroom
-          </Typography>
+          </Typography>}
+          {editData && <Typography variant="h6" component="h2" gutterBottom>
+            Edit chatroom
+          </Typography>}
           <form onSubmit={handleSubmit}>
             <TextField
               id="chatroom-name"
@@ -85,9 +104,12 @@ const CreateChatroom = ({ modal, toggle, save }) => {
               autoComplete='off'
               color='primary'
             />
-            <Button type="submit" variant="contained" sx={{ mt: 2, backgroundColor:'#23286B' }}>
+            {!editData && <Button type="submit" variant="contained" sx={{ mt: 2, backgroundColor:'#23286B' }}>
               Create
-            </Button>
+            </Button>}
+            {editData && <Button type="submit" variant="contained" sx={{ mt: 2, backgroundColor:'#23286B' }}>
+              Save
+            </Button>}
           </form>
         </Box>
       </Modal>

@@ -18,14 +18,17 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
+import CreateChatroom from '../ChatroomList/CreateChatroom.jsx';
 import { db } from '../../../firebase-config.js';
 import { collection, addDoc, doc, updateDoc, getDoc, deleteDoc } from 'firebase/firestore';
 import { getAuth } from "firebase/auth";
+import { motion } from "framer-motion"
 
 const ChatroomCard = ({chatroom, chatroomId, isOwner}) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [username, setUsername] = useState("");
     const [open, setOpen] = useState(false);
+    const [editModal, setEditModal] = useState(false)
     const auth = getAuth();
     const user = auth.currentUser;
 
@@ -93,8 +96,25 @@ const ChatroomCard = ({chatroom, chatroomId, isOwner}) => {
         setAnchorEl(null);
     }
 
+    const editModaltoggle = () => {
+      setEditModal(!editModal)
+    }
+
+    function handleSaveChatroom(event, title, tags) {
+      event.stopPropagation();
+      const chatroomRef = doc(db, "chatrooms", chatroomId);
+      updateDoc(chatroomRef, { title: title, tags: tags })
+        .then(() => {
+          setEditModal(false);
+        })
+        .catch((error) => {
+          console.error("Error updating chatroom: ", error);
+        });
+    }
+
     function handleEditChatroom(event) {
         event.stopPropagation();
+        setEditModal(true);
         setAnchorEl(null);
     }
 
@@ -114,8 +134,10 @@ const ChatroomCard = ({chatroom, chatroomId, isOwner}) => {
     }
 
     return (
-        <>
-        <Card onClick={handleJoin} variant="outlined" sx={{ minWidth: 275, minHeight: 175, backgroundColor: "#E0ECFF", borderWidth: '4px',borderColor: "#B8D1FD", cursor: 'pointer'}}>
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+        >
+        <Card onClick={handleJoin} variant="outlined" sx={{ minWidth: 275, minHeight: 175, backgroundColor: "#E0ECFF", borderWidth: '4px',borderColor: "#B8D1FD", cursor: 'pointer', '&:hover': {boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'}}}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Typography level="h2" sx={{ fontSize: '1.9rem', fontWeight: '700', color: '#23286B' }} mb={0.5}>
                     {chatroom.title}
@@ -162,7 +184,8 @@ const ChatroomCard = ({chatroom, chatroomId, isOwner}) => {
             <Button variant="contained" sx={{ mt: 2, backgroundColor:'#23286B' }} onClick={handleClose}>Close</Button>
         </DialogActions>
         </Dialog>
-        </>
+        <CreateChatroom toggle={editModaltoggle} modal={editModal} save={handleSaveChatroom} editData={chatroom}/>
+        </motion.div>
   )
 }
 

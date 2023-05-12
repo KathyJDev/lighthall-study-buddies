@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Input from './Input'
 import { useParams } from 'react-router-dom';
 import { getAuth } from "firebase/auth";
-import { db } from '../../../firebase-config.js';
+import { db, storage } from '../../../firebase-config.js';
 import { doc, getDoc, collection, query, where, onSnapshot, addDoc, serverTimestamp, orderBy } from 'firebase/firestore';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ShareIcon from '@mui/icons-material/Share';
@@ -14,6 +14,12 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { AnimatePresence, motion } from 'framer-motion';
 
 const ChatroomContainer = styled('div')({
   borderRadius: '20px',
@@ -35,7 +41,7 @@ const ChatroomHeader = styled('div')({
 const MessagesContainer = styled('div')({
   display: 'flex',
   flexDirection: 'column',
-  height: '65vh',
+  height: '75vh',
   width: '85vw',
   overflowY: 'scroll',
   padding: '16px',
@@ -62,6 +68,18 @@ const MessageText = styled('p')({
   },
   '.received &': {
     background: '#E0ECFF',
+  },
+  '& img': {
+    maxWidth: '400px',
+    height: 'auto',
+    borderRadius: '8px',
+    float: 'right',
+  },
+  '& video': {
+    maxWidth: '400px',
+    height: 'auto',
+    borderRadius: '8px',
+    float: 'right',
   },
 });
 
@@ -97,12 +115,42 @@ const ShareIconStyled = styled(ShareIcon)({
   padding: '4px',
 });
 
+function Message({ message, currentUser }) {
+  const { text, user, fileURL, fileName, fileType } = message;
+  const isSent = currentUser === user;
+  const messageClass = isSent ? 'sent' : 'received';
+
+  return (
+    <MessageWrapper className={messageClass}>
+      <MessageText>
+        {text}
+        {fileType === 'image' && <img src={fileURL} alt={fileName} />}
+        {fileType === 'video' && (
+          <video controls>
+            <source src={fileURL} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        )}
+        {fileType !== 'image' && fileType !== 'video' && (
+          <a href={fileURL} download={fileName}>
+            {fileName}
+          </a>
+        )}
+      </MessageText>
+      <MessageUser>{user}</MessageUser>
+    </MessageWrapper>
+  );
+}
+
 function Chatroom() {
   const { chatroomId } = useParams();
   const [chatroom, setChatroom] = useState({});
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState('');
   const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [username, setUsername] = useState('');
   const auth = getAuth();
   const user = auth.currentUser;
 
@@ -120,6 +168,22 @@ function Chatroom() {
     }
     getChatroom();
   }, [])
+
+  useEffect(() => {
+    if (user) {
+      const getUser = async () => {
+        const userRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(userRef);
+        if (docSnap.exists()) {
+          setUsername(docSnap.data().username);
+        } else {
+          console.log("No such document!");
+        }
+      };
+      getUser();
+    }
+  }, [user]);
+
 
   useEffect(() => {
     const messagesQuery = query(messagesRef, orderBy('timestamp', 'asc'));
@@ -141,11 +205,27 @@ function Chatroom() {
     if (messageInput.trim() !== '') {
       await addDoc(messagesRef, {
         text: messageInput,
-        user: user.username,
+        user: username,
         timestamp: serverTimestamp(),
       });
       setMessageInput('');
     }
+  };
+
+  const handleFileInputChange = async (e) => {
+    const file = e.target.files[0];
+    const storageRef = ref(storage, 'chatroom-files/' + file.name);
+    const snapshot = await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+  
+    await addDoc(messagesRef, {
+      text: '',
+      user: username,
+      timestamp: serverTimestamp(),
+      fileURL: downloadURL,
+      fileName: file.name,
+      fileType: file.type.split('/')[0],
+    });
   };
 
   function navigateToDashboard() {
@@ -160,25 +240,85 @@ function Chatroom() {
     setOpen(false);
   };
 
+  const handleCloseMenu = () => {
+    setMenuOpen(false);
+  };
+  const handleClickMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+    setMenuOpen(true);
+  };
+
   return (
     <>
     <ChatroomContainer>
       <ChatroomHeader>
-          <div className='header'>
+          <motion.div 
+          className='header'
+          initial={{ y: -50 }}
+          animate={{ y: 0 }}
+          transition={{ duration: 0.5 }}
+          >
             <h2>{chatroom.title}</h2>
             <LeaveIcon cursor='pointer' onClick={navigateToDashboard}/>
             <ShareIconStyled cursor='pointer' onClick={handleOpen} />
-          </div>
+          </motion.div>
           <MessagesContainer>
-            {messages.map((message, index) => (
-              <MessageWrapper key={index} className={message.user === user.username ? 'sent' : 'received'}>
-                <MessageText>{message.text}</MessageText>
-                <MessageUser>{message.user}</MessageUser>
-              </MessageWrapper>
-            ))}
+            <AnimatePresence>
+              {messages.map((message) => (
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Message message={message} currentUser={username} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
         </MessagesContainer>
         <InputWrapper>
-        <Input value={messageInput} onChange={(e) => setMessageInput(e.target.value)} onSend={handleSendMessage} />
+          <IconButton onClick={handleClickMenu} color='primary'> <AttachFileIcon /> </IconButton>
+          <Menu
+              id="basic-menu"
+              anchorEl={anchorEl}
+              open={menuOpen}
+              onClose={handleCloseMenu}
+              MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
+            >
+              <MenuItem>
+                <label htmlFor="image-input">Image</label>
+                <input
+                  id="image-input"
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handleFileInputChange}
+                />
+              </MenuItem>
+              <MenuItem>
+                <label htmlFor="video-input">Video</label>
+                <input
+                  id="video-input"
+                  type="file"
+                  accept="video/*"
+                  style={{ display: 'none' }}
+                  onChange={handleFileInputChange}
+                />
+              </MenuItem>
+              <MenuItem>
+                <label htmlFor="file-input">File</label>
+                <input
+                  id="file-input"
+                  type="file"
+                  style={{ display: 'none' }}
+                  onChange={handleFileInputChange}
+                />
+              </MenuItem>
+            </Menu>
+            <Input value={messageInput} onChange={(e) => setMessageInput(e.target.value)} onSend={handleSendMessage} />
         </InputWrapper>
       </ChatroomHeader>
     </ChatroomContainer>

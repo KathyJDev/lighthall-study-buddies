@@ -8,6 +8,7 @@ import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import { getAuth } from "firebase/auth";
+import { AnimatePresence, motion } from "framer-motion";
 
 const SearchTextField = styled(TextField)({
     background: '#ffffff',
@@ -91,7 +92,12 @@ function Community() {
 
   return (
     <div>
-    <div className='search-header'>
+      <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="search-header"
+      >
         <DashButton variant="contained" onClick={navigateToDashboard}>Dashboard</DashButton>
         <h2>Search Chatrooms</h2>
         <SearchTextField type="text" size="small" value={searchQuery} onChange={event => setSearchQuery(event.target.value)} onKeyDown={handleKeyDown} placeholder="Search by tags" autoComplete='off' />
@@ -100,18 +106,29 @@ function Community() {
                 <Chip color='primary' variant='solid' key={tag} label={tag} onDelete={() => handleDelete(tag)} />
             ))}
         </ChipContainer>
-    </div>
-    <div className='community-chatrooms-container' >
-      {filteredChatrooms.length > 0 ? (
-        filteredChatrooms.map(chatroom => (
-          <ChatroomCard key={chatroom.id} chatroom={chatroom} chatroomId={chatroom.id} />
-        ))
-      ) : (
-        chatrooms.map(chatroom => (
-          <ChatroomCard key={chatroom.id} chatroom={chatroom} chatroomId={chatroom.id} />
-        ))
-      )}
-      </div>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="community-chatrooms-container"
+      >
+      <AnimatePresence>
+        {filteredChatrooms.length > 0 ? (
+          filteredChatrooms.map((chatroom, index) => (
+            <motion.div key={chatroom.id} initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} transition={{ duration: 0.5, delay: index * 0.1 }}>
+              <ChatroomCard key={chatroom.id} chatroom={chatroom} chatroomId={chatroom.id} />
+            </motion.div>
+          ))
+        ) : (
+          chatrooms.map((chatroom, index) => (
+            <motion.div key={chatroom.id} initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} transition={{ duration: 0.5, delay: index * 0.1 }}>
+              <ChatroomCard key={chatroom.id} chatroom={chatroom} chatroomId={chatroom.id} />
+            </motion.div>
+          ))
+        )}
+      </AnimatePresence>
+      </motion.div>
     </div>
   );
 }
