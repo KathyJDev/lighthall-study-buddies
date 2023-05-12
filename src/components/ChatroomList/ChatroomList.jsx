@@ -174,7 +174,7 @@ function ChatroomList() {
       const chatroomDoc = querySnapshot.docs[0];
       const chatroomId = chatroomDoc.id;
       const chatroomData = chatroomDoc.data();
-      if (chatroomData.joinedUsers.includes(username)) {
+      if (chatroomData.joinedUsers.includes(username) || chatroomData.createdBy === username) {
         setError(true);
         console.log(`User ${username} has already joined chatroom ${chatroomId}`);
         return;
