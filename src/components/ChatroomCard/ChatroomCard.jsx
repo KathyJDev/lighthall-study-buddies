@@ -50,6 +50,7 @@ const ChatroomCard = ({chatroom, chatroomId, isOwner}) => {
       const handleJoin = async () => {
         // Check if current user is the creator of the chatroom
         if (isOwner) {
+            window.location.href = `/chatroom/${chatroomId}`;
             return;
         }
       
